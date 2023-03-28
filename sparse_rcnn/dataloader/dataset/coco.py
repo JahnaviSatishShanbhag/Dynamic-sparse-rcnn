@@ -180,7 +180,6 @@ class CocoDataset(Dataset):
                   'image_size_xyxy': img_whwh,
                   'image_size_xyxy_tgt': img_whwh.unsqueeze(0).repeat(len(gt_boxes), 1)
                   }
-        print("Label:",label)
 
         return img, img_whwh, label
 
