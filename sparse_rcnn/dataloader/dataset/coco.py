@@ -46,8 +46,8 @@ import torch
 #                 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
 
 coco_id_name_map={1: 'Caption', 2: 'Footnote', 3: 'Formula', 4: 'List-item', 5: 'Page-footer',
-#                    6: 'Page-header', 7: 'Picture', 8: 'Section-header', 9: 'Table', 10: 'Text',
-#                    11: 'Title'}
+                  6: 'Page-header', 7: 'Picture', 8: 'Section-header', 9: 'Table', 10: 'Text',
+                    11: 'Title'}
 
 coco_id_idx_map=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
