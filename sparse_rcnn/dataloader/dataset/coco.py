@@ -161,7 +161,7 @@ class CocoDataset(Dataset):
 #         if self.transform is not None:
 #             # img, gt_boxes = self.transform(image=img, bboxes=gt_boxes)
 #             (_, img), (_, gt_boxes), (_, gt_classes) = self.transform(image=img, bboxes=gt_boxes,
-                                                                      classes=gt_classes).items()
+#                                                                       classes=gt_classes).items()
         if self.is_rgb == "RGB":
             try:
                 img = img[:, :, [2,1,0]]
