@@ -154,6 +154,7 @@ class CocoDataset(Dataset):
         h, w, _ = img.shape
 
         gt_boxes = [[t['bbox'][0], t['bbox'][1], t['bbox'][0]+t['bbox'][2], t['bbox'][1]+t['bbox'][3]] for t in target]
+        print(gt_boxes)
         res1=gt_boxes[0]>=0 and gt_boxes[0]<=1
         res2=gt_boxes[1]>=0 and gt_boxes[1]<=1
         res3=gt_boxes[2]>=0 and gt_boxes[2]<=1
