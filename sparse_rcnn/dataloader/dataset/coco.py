@@ -154,38 +154,35 @@ class CocoDataset(Dataset):
         h, w, _ = img.shape
 
         gt_boxes = [[t['bbox'][0], t['bbox'][1], t['bbox'][0]+t['bbox'][2], t['bbox'][1]+t['bbox'][3]] for t in target]
-        print(gt_boxes)
-        res1=gt_boxes[0]>=0 and gt_boxes[0]<=1
-        res2=gt_boxes[1]>=0 and gt_boxes[1]<=1
-        res3=gt_boxes[2]>=0 and gt_boxes[2]<=1
-        res4=gt_boxes[3]>=0 and gt_boxes[3]<=1
-        if res1==True and res2==True and res3==True and res4==True:
-            gt_classes = [coco_id_idx_map.index(t['category_id']) for t in target]
+     
+        
+        gt_classes = [coco_id_idx_map.index(t['category_id']) for t in target]
 
-            if self.transform is not None:
-                # img, gt_boxes = self.transform(image=img, bboxes=gt_boxes)
-                (_, img), (_, gt_boxes), (_, gt_classes) = self.transform(image=img, bboxes=gt_boxes,
-                                                                          classes=gt_classes).items()
-            if self.is_rgb == "RGB":
-                try:
-                    img = img[:, :, [2,1,0]]
-                except:
-                    print(self._get_image_path(file_name).replace('images/', ''))
-            img = img.transpose(2, 0, 1)
-            img = torch.from_numpy(img)
-            img_whwh = torch.as_tensor([img.shape[2], img.shape[1], img.shape[2], img.shape[1]])        
+        if self.transform is not None:
+            # img, gt_boxes = self.transform(image=img, bboxes=gt_boxes)
+            (_, img), (_, gt_boxes), (_, gt_classes) = self.transform(image=img, bboxes=gt_boxes,
+                                                                      classes=gt_classes).items()
+        if self.is_rgb == "RGB":
+            try:
+                img = img[:, :, [2,1,0]]
+            except:
+                print(self._get_image_path(file_name).replace('images/', ''))
+        img = img.transpose(2, 0, 1)
+        img = torch.from_numpy(img)
+        img_whwh = torch.as_tensor([img.shape[2], img.shape[1], img.shape[2], img.shape[1]])        
 
-            label = {'num_instances': len(gt_classes),
-                      'image_id': img_id,
-                      'height': h,
-                      'width': w,
-                      'gt_boxes': torch.Tensor(gt_boxes),
-                      'gt_classes': torch.LongTensor(gt_classes),
-                      'image_size_xyxy': img_whwh,
-                      'image_size_xyxy_tgt': img_whwh.unsqueeze(0).repeat(len(gt_boxes), 1)
-                      }
+        label = {'num_instances': len(gt_classes),
+                  'image_id': img_id,
+                  'height': h,
+                  'width': w,
+                  'gt_boxes': torch.Tensor(gt_boxes),
+                  'gt_classes': torch.LongTensor(gt_classes),
+                  'image_size_xyxy': img_whwh,
+                  'image_size_xyxy_tgt': img_whwh.unsqueeze(0).repeat(len(gt_boxes), 1)
+                  }
+        print("Label:",label)
 
-            return img, img_whwh, label
+        return img, img_whwh, label
 
     def __len__(self):
         return len(self.ids)
