@@ -154,8 +154,11 @@ class CocoDataset(Dataset):
         h, w, _ = img.shape
 
         gt_boxes = [[t['bbox'][0], t['bbox'][1], t['bbox'][0]+t['bbox'][2], t['bbox'][1]+t['bbox'][3]] for t in target]
-        res=all(element >= 0 and element <= 1 for element in gt_boxes)
-        if res==True:
+        res1=gt_boxes[0]>=0 and gt_boxes[0]<=1
+        res2=gt_boxes[1]>=0 and gt_boxes[1]<=1
+        res3=gt_boxes[2]>=0 and gt_boxes[2]<=1
+        res4=gt_boxes[3]>=0 and gt_boxes[3]<=1
+        if res1==True and res2==True and res3==True and res4==True:
             gt_classes = [coco_id_idx_map.index(t['category_id']) for t in target]
 
             if self.transform is not None:
