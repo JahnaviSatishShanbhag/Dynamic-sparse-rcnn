@@ -45,6 +45,10 @@ import torch
 #                 63, 64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 
 #                 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
 
+coco_id_name_map={1: 'Caption', 2: 'Footnote', 3: 'Formula', 4: 'List-item', 5: 'Page-footer',
+#                    6: 'Page-header', 7: 'Picture', 8: 'Section-header', 9: 'Table', 10: 'Text',
+#                    11: 'Title'}
+
 coco_id_idx_map=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 from pycocotools.cocoeval import COCOeval
@@ -104,23 +108,19 @@ class CocoDataset(Dataset):
     def _get_anno_file_name(self):
         # example: root/annotations/person_keypoints_tran2017.json
         # image_info_test-dev2017.json
-#         if 'test' in self.dataset:
-#             return os.path.join(
-#                 self.root,
-#                 'annotations',
-#                 'image_info_{}.json'.format(
-#                     self.dataset
-#                 )
-#             )
-#         else:
-#             return os.path.join(
-#                 self.root,
-#                 'annotations',
-#                 'instances_{}.json'.format(
-#                     self.dataset
-#                 )
-#             )
-          return os.path.join('/kaggle/input/doclaynet','COCO','train.json')
+        if 'test' in self.dataset:
+            return os.path.join(
+                self.root,
+                'COCO',
+                'test.json'
+            )
+        else:
+            return os.path.join(
+                self.root,
+                'COCO',
+                'train.json'
+            )
+#           return os.path.join('/kaggle/input/doclaynet','COCO','train.json')
 
     def _get_image_path(self, file_name):
 #         images_dir = os.path.join(self.root, 'images')
@@ -154,32 +154,34 @@ class CocoDataset(Dataset):
         h, w, _ = img.shape
 
         gt_boxes = [[t['bbox'][0], t['bbox'][1], t['bbox'][0]+t['bbox'][2], t['bbox'][1]+t['bbox'][3]] for t in target]
-        gt_classes = [coco_id_idx_map.index(t['category_id']) for t in target]
+        res=all(element >= 0 and element <= 1 for element in gt_boxes)
+        if res==True:
+            gt_classes = [coco_id_idx_map.index(t['category_id']) for t in target]
 
-        if self.transform is not None:
-            # img, gt_boxes = self.transform(image=img, bboxes=gt_boxes)
-            (_, img), (_, gt_boxes), (_, gt_classes) = self.transform(image=img, bboxes=gt_boxes,
-                                                                      classes=gt_classes).items()
-        if self.is_rgb == "RGB":
-            try:
-                img = img[:, :, [2,1,0]]
-            except:
-                print(self._get_image_path(file_name).replace('images/', ''))
-        img = img.transpose(2, 0, 1)
-        img = torch.from_numpy(img)
-        img_whwh = torch.as_tensor([img.shape[2], img.shape[1], img.shape[2], img.shape[1]])        
+            if self.transform is not None:
+                # img, gt_boxes = self.transform(image=img, bboxes=gt_boxes)
+                (_, img), (_, gt_boxes), (_, gt_classes) = self.transform(image=img, bboxes=gt_boxes,
+                                                                          classes=gt_classes).items()
+            if self.is_rgb == "RGB":
+                try:
+                    img = img[:, :, [2,1,0]]
+                except:
+                    print(self._get_image_path(file_name).replace('images/', ''))
+            img = img.transpose(2, 0, 1)
+            img = torch.from_numpy(img)
+            img_whwh = torch.as_tensor([img.shape[2], img.shape[1], img.shape[2], img.shape[1]])        
 
-        label = {'num_instances': len(gt_classes),
-                  'image_id': img_id,
-                  'height': h,
-                  'width': w,
-                  'gt_boxes': torch.Tensor(gt_boxes),
-                  'gt_classes': torch.LongTensor(gt_classes),
-                  'image_size_xyxy': img_whwh,
-                  'image_size_xyxy_tgt': img_whwh.unsqueeze(0).repeat(len(gt_boxes), 1)
-                  }
-        
-        return img, img_whwh, label
+            label = {'num_instances': len(gt_classes),
+                      'image_id': img_id,
+                      'height': h,
+                      'width': w,
+                      'gt_boxes': torch.Tensor(gt_boxes),
+                      'gt_classes': torch.LongTensor(gt_classes),
+                      'image_size_xyxy': img_whwh,
+                      'image_size_xyxy_tgt': img_whwh.unsqueeze(0).repeat(len(gt_boxes), 1)
+                      }
+
+            return img, img_whwh, label
 
     def __len__(self):
         return len(self.ids)
